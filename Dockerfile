@@ -1,6 +1,5 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
 
-# Установка netcat-openbsd
 RUN apt-get update && apt-get install -y netcat-openbsd
 
 WORKDIR /app
