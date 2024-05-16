@@ -6,6 +6,24 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      docker:
+        image: docker:20.10.7
+        options: --privileged
+        ports:
+          - 2181:2181
+          - 9092:9092
+          - 8000:8000
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+        env:
+          KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+          KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+          KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_CREATE_TOPICS: "delhaize_shop:1:1,delhaize_shop_2:1:1"
+
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
@@ -16,7 +34,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Start Docker Compose
+      run: |
+        docker-compose up -d
+    - name: Wait for services to be ready
+      run: |
+        # Wait for Kafka and API to be ready
+        while ! nc -z localhost 9092; do sleep 1; done
+        while ! nc -z localhost 8000; do sleep 1; done
     - name: Run tests
       run: |
         pytest
-        
+    - name: Stop Docker Compose
+      run: |
+        docker-compose down
