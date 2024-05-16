@@ -12,21 +12,7 @@ This project implements a data pipeline for Delhaize, a retail company. The pipe
 
 ## Architecture Diagram
 
-```
-+----------------+       +---------+       +----------+       +-------------------+
-|                |       |         |       |          |       |                   |
-|  Airflow DAG   +------->  API    +------->  Kafka   +------->  Consumer          |
-|                |       |         |       |          |       |                   |
-+----------------+       +---------+       +----------+       +-------------------+
-                                                                 |
-                                                                 |
-                                                                 v
-                                                       +-------------------+
-                                                       |                   |
-                                                       |  Cloud Database   |
-                                                       |                   |
-                                                       +-------------------+
-```
+![Architecture Diagram](assets/arch.png)
 
 ## Components
 
