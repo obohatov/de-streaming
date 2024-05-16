@@ -20,6 +20,7 @@ cloud_manager.create_tables()
 
 for message in consumer:
     data = message.value
+    logging.info(f"Received message: {data}")
     purchase_id = data['id']
     store = data['store']
     date = data['date']
@@ -27,7 +28,10 @@ for message in consumer:
 
     logging.info(f"Processing purchase: {purchase_id} at {store} on {date} with total price {total_price}")
 
-    cloud_manager.insert_purchase(purchase_id, store, date, total_price)
+    try:
+        cloud_manager.insert_purchase(purchase_id, store, date, total_price)
+    except Exception as e:
+        logging.error(f"Failed to insert purchase: {e}")
 
     for product in data['products']:
         product_id = product['id']
@@ -36,6 +40,9 @@ for message in consumer:
         category = get_category(name)
 
         logging.info(f"Inserting product {name} with category {category}")
-        cloud_manager.insert_product(product_id, purchase_id, name, price, category)
+        try:
+            cloud_manager.insert_product(product_id, purchase_id, name, price, category)
+        except Exception as e:
+            logging.error(f"Failed to insert product: {e}")
 
 cloud_manager.close()

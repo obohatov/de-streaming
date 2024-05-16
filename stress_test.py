@@ -1,7 +1,6 @@
 import random
 from requests import Session
 
-# Define product categories
 CATEGORIES = {
     "Fruit": ["apple", "banana", "orange", "pear", "kiwi"],
     "Bakery": ["bread", "croissant", "baguette", "cake"],
