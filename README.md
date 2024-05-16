@@ -76,7 +76,7 @@ Amazon RDS database stores the processed data for analytics.
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/your-repo/de-streaming.git
+    git clone https://github.com/obohatov/de-streaming.git
     cd de-streaming
     ```
 
