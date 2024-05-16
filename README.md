@@ -90,8 +90,8 @@ Amazon RDS database stores the processed data for analytics.
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/your-repo/delhaize-data-pipeline.git
-    cd delhaize-data-pipeline
+    git clone https://github.com/your-repo/de-streaming.git
+    cd de-streaming
     ```
 
 2. **Create and activate a virtual environment** (optional):
@@ -320,3 +320,4 @@ This project demonstrates a complete data pipeline for processing shopping data 
 
 Feel free to contribute to this project by submitting pull requests or opening issues on GitHub.
 
+This project was created by Oleh Bohatov and Mahak Behl ([LinkedIn](https://www.linkedin.com/in/mahak-behl-48541a16a/), [GitHub](https://github.com/MahakBehl))
