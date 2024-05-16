@@ -1,10 +1,11 @@
-# services/CloudManager.py
 import psycopg2
 import os
 import psycopg2.extras
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
+logging.basicConfig(level=logging.INFO)
 
 CATEGORIES = {
     'Fruit': ['apple', 'banana', 'orange', 'pear', 'kiwi'],
@@ -25,16 +26,21 @@ class CloudManager:
                 host=os.getenv('DB_HOST'),
                 port=os.getenv('DB_PORT')
             )
+            logging.info("Successfully connected to the database.")
         except Exception as e:
-            print(f"Unable to connect to the database: {e}")
+            logging.error(f"Unable to connect to the database: {e}")
             self.connection = None
 
     def close(self):
         if self.connection:
             self.connection.close()
+            logging.info("Closed the database connection.")
             self.connection = None
 
     def create_tables(self):
+        if not self.connection:
+            logging.error("No database connection to create tables.")
+            return
         cursor = self.connection.cursor()
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS purchases (
@@ -56,6 +62,7 @@ class CloudManager:
         );
         """)
         self.connection.commit()
+        logging.info("Created tables if not exists.")
 
     def insert_category(self, category_name):
         cursor = self.connection.cursor()
@@ -74,6 +81,7 @@ class CloudManager:
 
     def insert_purchase(self, purchase_id, store, date, total_price):
         if not self.connection:
+            logging.error("No database connection to insert purchase.")
             raise Exception("No database connection")
         cursor = self.connection.cursor()
         cursor.execute("""
@@ -81,9 +89,11 @@ class CloudManager:
         VALUES (%s, %s, %s, %s)
         """, (purchase_id, store, date, total_price))
         self.connection.commit()
+        logging.info(f"Inserted purchase {purchase_id}.")
 
     def insert_product(self, product_id, purchase_id, name, price, category):
         if not self.connection:
+            logging.error("No database connection to insert product.")
             raise Exception("No database connection")
         category_id = self.insert_category(category)
         cursor = self.connection.cursor()
@@ -92,6 +102,16 @@ class CloudManager:
         VALUES (%s, %s, %s, %s, %s)
         """, (product_id, purchase_id, name, price, category_id))
         self.connection.commit()
+        logging.info(f"Inserted product {name}.")
+
+    def retrieve_data(self):
+        if not self.connection:
+            logging.error("No database connection to retrieve data.")
+            raise Exception("No database connection")
+        cursor = self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute("SELECT * FROM purchases")
+        rows = cursor.fetchall()
+        return rows
 
 def get_category(product_name):
     product_name = product_name.lower()

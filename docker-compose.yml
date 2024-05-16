@@ -5,23 +5,24 @@ services:
     hostname: kafka
     ports:
       - "9092:9092"
-      - "9094:9094"
     volumes:
       - "kafka_data:/bitnami"
     environment:
       - KAFKA_ENABLE_KRAFT=yes
       - KAFKA_CFG_PROCESS_ROLES=broker,controller
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092,EXTERNAL://kafka:9094
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9093
+      - KAFKA_CFG_NODE_ID=1 
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_NUM_PARTITIONS=2
+
   api:
     build: .
-    command: ["./docker-entrypoint.sh", "uvicorn", "api.api:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["uvicorn", "api.api:app", "--host", "0.0.0.0", "--port", "8000"]
     volumes:
       - .:/app
     ports:
@@ -30,13 +31,15 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
     depends_on:
       - kafka
+      
   consumer:
     build: .
     command: ["python", "consumer.py"]
     depends_on:
       - kafka
     env_file:
-      - .env  
+      - .env
+
 volumes:
   kafka_data:
     driver: local

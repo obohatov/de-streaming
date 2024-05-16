@@ -1,8 +1,10 @@
 import json
 from kafka import KafkaConsumer
-from CloudManager import CloudManager, get_category  
+from CloudManager import CloudManager, get_category
+import logging
 
-# Initializing the Kafka consumer
+logging.basicConfig(level=logging.INFO)
+
 consumer = KafkaConsumer(
     'shop_data',
     bootstrap_servers='localhost:9092',
@@ -12,12 +14,10 @@ consumer = KafkaConsumer(
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )
 
-# Initializing a database connection
 cloud_manager = CloudManager()
 cloud_manager.connect()
 cloud_manager.create_tables()
 
-# Processing and saving messages
 for message in consumer:
     data = message.value
     purchase_id = data['id']
@@ -25,16 +25,17 @@ for message in consumer:
     date = data['date']
     total_price = sum([product['price'] for product in data['products']])
 
-    # Inserting Purchase data
+    logging.info(f"Processing purchase: {purchase_id} at {store} on {date} with total price {total_price}")
+
     cloud_manager.insert_purchase(purchase_id, store, date, total_price)
 
-    # Inserting Product data
     for product in data['products']:
         product_id = product['id']
         name = product['name']
         price = product['price']
         category = get_category(name)
 
+        logging.info(f"Inserting product {name} with category {category}")
         cloud_manager.insert_product(product_id, purchase_id, name, price, category)
 
 cloud_manager.close()

@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# Ожидание Kafka
 KAFKA_HOST="kafka"
 KAFKA_PORT="9092"
 
@@ -10,5 +9,4 @@ while ! nc -z $KAFKA_HOST $KAFKA_PORT; do
 done
 echo "Kafka is up and running"
 
-# Запуск Uvicorn
 exec "$@"
